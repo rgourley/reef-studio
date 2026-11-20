@@ -263,8 +263,9 @@ newFact();
 import * as THREE from 'three';
 // Upright touch phones: the CSS turns the whole page 90 degrees so the scene is always landscape.
 // VW/VH give the page's own size, and pointer coordinates are turned back into the page's frame.
+// The getters are looked up along the prototype chain: Safari keeps pageX/pageY on UIEvent, not MouseEvent.
 const ROT=matchMedia('(orientation:portrait) and (pointer:coarse)'),VW=()=>document.body.clientWidth,VH=()=>document.body.clientHeight;
-{const E=MouseEvent.prototype,g=k=>Object.getOwnPropertyDescriptor(E,k).get,cx=g('clientX'),cy=g('clientY'),px=g('pageX'),py=g('pageY'),d=(k,f)=>Object.defineProperty(E,k,{get:f,configurable:true});
+{const E=MouseEvent.prototype,g=k=>{for(let o=E;o;o=Object.getPrototypeOf(o)){const x=Object.getOwnPropertyDescriptor(o,k);if(x&&x.get)return x.get;}},cx=g('clientX'),cy=g('clientY'),px=g('pageX'),py=g('pageY'),d=(k,f)=>Object.defineProperty(E,k,{get:f,configurable:true});
   d('clientX',function(){return ROT.matches?cy.call(this):cx.call(this);});d('clientY',function(){return ROT.matches?VH()-cx.call(this):cy.call(this);});
   d('pageX',function(){return ROT.matches?py.call(this):px.call(this);});d('pageY',function(){return ROT.matches?VH()-px.call(this):py.call(this);});}
 const GITHUB_URL='https://github.com/rgourley/reef-studio';   // shown in the panel and menu footers; leave empty to hide the link
